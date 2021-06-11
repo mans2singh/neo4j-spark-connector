@@ -41,6 +41,17 @@ class BaseStreamingPartitionReader(private val options: Neo4jOptions,
     map
   }
 
+  private lazy val values = {
+    val map = new util.HashMap[String, AnyRef](super.getQueryParameters)
+    val value = if (map.containsKey(prop)) {
+      map.get(prop)
+    } else {
+      Neo4jOffset.ALL.offset
+    }
+    map.put(Neo4jQueryStrategy.VARIABLE_STREAM, Collections.singletonMap("offset", value))
+    map
+  }
+
   override def get: InternalRow = {
     val row = super.get
     updateOffset(row)
